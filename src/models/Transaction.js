@@ -1,5 +1,6 @@
-const { Sequelize, DataTypes } = require('sequelize');
-const sequelize = new Sequelize('postgres://username:password@localhost:5432/yourdatabase');
+// src/models/Transaction.js
+const { DataTypes } = require('sequelize');
+const sequelize = require('./db');
 
 const Transaction = sequelize.define('Transaction', {
   description: {
