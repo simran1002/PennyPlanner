@@ -106,7 +106,7 @@ Create an `index.js` file as the entry point.
 
 ## 9. Documentation:
 
-- Use Swagger or API Blueprint.
+- Used Swagger for the documentation.
 - Include endpoint descriptions and examples.
 
 ## 10. Bonus:
