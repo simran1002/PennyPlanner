@@ -3,26 +3,34 @@ const Transaction = require('../models/Transaction');
 const { Op } = require('sequelize');
 const Joi = require('joi');
 
+// Joi schema for transaction input validation
+const transactionSchema = Joi.object({
+  description: Joi.string().required(),
+  amount: Joi.number().required(),
+  type: Joi.string().valid('income', 'expense').required(),
+});
+
 // Add a new transaction
 exports.addTransaction = async (req, res) => {
   try {
     // Validate and sanitize input data
-    const schema = Joi.object({
-      description: Joi.string().required(),
-      amount: Joi.number().required(),
-      type: Joi.string().valid('income', 'expense').required(),
-    });
-
-    const { error } = schema.validate(req.body);
+    const { error, value } = transactionSchema.validate(req.body);
     if (error) {
       return res.status(400).json({ error: error.details[0].message });
     }
+
+    // Sanitize data to prevent SQL injection
+    const sanitizedTransaction = {
+      description: value.description,
+      amount: parseFloat(value.amount),
+      type: value.type,
+    };
 
     // Assuming you have user information stored in req.user after authentication
     const userId = req.user.id;
 
     const transaction = await Transaction.create({
-      ...req.body,
+      ...sanitizedTransaction,
       userId,
     });
 
@@ -32,6 +40,7 @@ exports.addTransaction = async (req, res) => {
     return res.status(500).json({ error: 'Internal Server Error' });
   }
 };
+
 
 // Retrieve transactions for a given period
 exports.getTransactions = async (req, res) => {
