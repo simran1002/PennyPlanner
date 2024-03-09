@@ -1,6 +1,6 @@
 # PennyPlanner Project
 
-PennyPlanner is a personal finance management application that empowers users to track their incomes, expenses, and gain insights into their spending habits.
+PennyPlanner is a personal finance management application. The API will allow users to track their incomes, expenses, and provide insights on their spending habits. The primary focus is on backend development, with an emphasis on security, data integrity, and efficient data retrieval.
 
 ## Table of Contents
 
@@ -22,9 +22,7 @@ PennyPlanner is a personal finance management application that empowers users to
 7. [Security Measures](#7-security-measures)
 8. [Testing](#8-testing)
 9. [Documentation](#9-documentation)
-10. [Deliverables](#10-deliverables)
-11. [Submission](#11-submission)
-12. [Bonus](#12-bonus)
+10. [Bonus](#12-bonus)
 
 ## 1. Setting Up the Project:
 
@@ -111,18 +109,6 @@ Create an `index.js` file as the entry point.
 - Use Swagger or API Blueprint.
 - Include endpoint descriptions and examples.
 
-## 10. Deliverables:
-
-- Source code for the API.
-- Database schema (ER diagram and SQL definitions).
-- Comprehensive API documentation.
-- Setup instructions.
-
-## 11. Submission:
-
-- Ensure code meets requirements and is well-tested.
-- Submit source code, database schema, API documentation, and setup instructions.
-
-## 12. Bonus:
+## 10. Bonus:
 
 - Consider additional security measures like HTTPS, input validation, and output encoding.
