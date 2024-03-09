@@ -1,5 +1,6 @@
-const { Sequelize, DataTypes } = require('sequelize');
-const sequelize = new Sequelize('postgres://username:password@localhost:5432/yourdatabase');
+// src/models/User.js
+const { DataTypes } = require('sequelize');
+const sequelize = require('./db');
 
 const User = sequelize.define('User', {
   username: {
