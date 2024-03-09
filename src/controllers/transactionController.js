@@ -69,7 +69,7 @@ exports.getTransactionSummary = async (req, res) => {
     // Assuming you have user information stored in req.user after authentication
     const userId = req.user.id;
 
-    const summary = await Transaction.findAll({
+    const summary = await Transaction.findOne({
       attributes: [
         [sequelize.fn('SUM', sequelize.literal('CASE WHEN "type" = \'income\' THEN "amount" ELSE 0 END')), 'totalIncome'],
         [sequelize.fn('SUM', sequelize.literal('CASE WHEN "type" = \'expense\' THEN "amount" ELSE 0 END')), 'totalExpense'],
