@@ -41,7 +41,6 @@ exports.addTransaction = async (req, res) => {
   }
 };
 
-
 // Retrieve transactions for a given period
 exports.getTransactions = async (req, res) => {
   try {
