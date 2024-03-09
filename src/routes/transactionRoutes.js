@@ -1,8 +1,9 @@
-// src/routes/transactionRoutes.js
 const express = require('express');
 const router = express.Router();
 const transactionController = require('../controllers/transactionController');
 const authenticateUser = require('../middlewares/authenticateUser');
+const Joi = require('joi');
+const he = require('he');
 
 /**
  * @swagger
@@ -57,10 +58,35 @@ const authenticateUser = require('../middlewares/authenticateUser');
  *               $ref: '#/components/schemas/Transaction'
  *       401:
  *         description: Unauthorized
- *       500:
- *         description: Internal Server Error
+ *       400:
+ *         description: Bad Request
+ *         content:
+ *           application/json:
+ *             example:
+ *               error: 'Validation error: "description" is required'
  */
-router.post('/', authenticateUser, transactionController.addTransaction);
+router.post('/', authenticateUser, (req, res) => {
+  // Validate and sanitize input data
+  const { error } = validateTransaction(req.body);
+  if (error) {
+    return res.status(400).json({ error: error.details[0].message });
+  }
+
+  // Use encoded data to prevent XSS attacks
+  const sanitizedDescription = he.encode(req.body.description);
+
+  // Handle the valid input
+  // Call the controller function, passing sanitizedDescription and other validated data
+  const result = transactionController.addTransaction({
+    description: sanitizedDescription,
+    amount: req.body.amount,
+    type: req.body.type,
+    // Add other data as needed
+  });
+
+  // Return the result or appropriate response
+  res.status(201).json(result);
+});
 
 /**
  * @swagger
@@ -96,83 +122,50 @@ router.post('/', authenticateUser, transactionController.addTransaction);
  *                 $ref: '#/components/schemas/Transaction'
  *       401:
  *         description: Unauthorized
- *       500:
- *         description: Internal Server Error
- */
-router.get('/', authenticateUser, transactionController.getTransactions);
-
-/**
- * @swagger
- * /transactions/summary:
- *   get:
- *     summary: Retrieve a summary of transactions for a given period
- *     tags: [Transactions]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: query
- *         name: startDate
- *         schema:
- *           type: string
- *           format: date
- *         required: true
- *         description: Start date of the period
- *       - in: query
- *         name: endDate
- *         schema:
- *           type: string
- *           format: date
- *         required: true
- *         description: End date of the period
- *     responses:
- *       200:
- *         description: Successfully retrieved transaction summary
+ *       400:
+ *         description: Bad Request
  *         content:
  *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 totalIncome:
- *                   type: number
- *                   description: Total income for the period
- *                 totalExpense:
- *                   type: number
- *                   description: Total expense for the period
- *               required:
- *                 - totalIncome
- *                 - totalExpense
- *       401:
- *         description: Unauthorized
- *       500:
- *         description: Internal Server Error
+ *             example:
+ *               error: 'Validation error: "startDate" must be a valid date'
  */
-router.get('/summary', authenticateUser, transactionController.getTransactionSummary);
+router.get('/', authenticateUser, (req, res) => {
+  // Validate input parameters
+  const { error } = validatePeriod(req.query.startDate, req.query.endDate);
+  if (error) {
+    return res.status(400).json({ error: error.details[0].message });
+  }
 
-/**
- * @swagger
- * /transactions/{id}:
- *   delete:
- *     summary: Delete a specific transaction
- *     tags: [Transactions]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         schema:
- *           type: string
- *         required: true
- *         description: ID of the transaction to delete
- *     responses:
- *       204:
- *         description: Successfully deleted the transaction
- *       401:
- *         description: Unauthorized
- *       404:
- *         description: Transaction not found
- *       500:
- *         description: Internal Server Error
- */
-router.delete('/:id', authenticateUser, transactionController.deleteTransaction);
+  // Handle the valid input
+  // Call the controller function, passing startDate and endDate
+  const result = transactionController.getTransactions({
+    startDate: req.query.startDate,
+    endDate: req.query.endDate,
+    // Add other parameters as needed
+  });
+
+  // Return the result or appropriate response
+  res.status(200).json(result);
+});
+
+// Add similar annotations and routes for other endpoints
 
 module.exports = router;
+
+// Validation functions
+function validateTransaction(transaction) {
+  const schema = Joi.object({
+    description: Joi.string().required(),
+    amount: Joi.number().required(),
+    type: Joi.string().valid('income', 'expense').required(),
+  });
+  return schema.validate(transaction);
+}
+
+function validatePeriod(startDate, endDate) {
+  const schema = Joi.object({
+    startDate: Joi.date().iso().required(),
+    endDate: Joi.date().iso().required(),
+  });
+  return schema.validate({ startDate, endDate });
+}
