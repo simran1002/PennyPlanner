@@ -1,18 +1,18 @@
 // src/index.js
 const express = require('express');
 const bodyParser = require('body-parser');
-const rateLimit = require('express-rate-limit');
+const swaggerJsdoc = require('swagger-jsdoc');
+const swaggerUi = require('swagger-ui-express');
 const transactionRoutes = require('./routes/transactionRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Apply rate limiting middleware
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
-});
-app.use(limiter);
+// Swagger configuration
+const swaggerOptions = require('./swaggerConfig');
+const specs = swaggerJsdoc(swaggerOptions);
+
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
 
 app.use(bodyParser.json());
 
